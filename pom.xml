@@ -6,13 +6,12 @@
 
     <groupId>works.nuka</groupId>
     <artifactId>ModularKit</artifactId>
-    <version>1.6.1</version>
+    <version>1.7.0</version>
     <name>ModularKit</name>
     <url>https://modularkit.nuka.works</url>
     <description>
-        ModularKit, a lightweight but powerful Java micro-framework for creating modular apps.
+        ModularKit, an alternative to the OSGi framework, more lightweight and powerful Java toolkit for creating modular apps.
     </description>
-
     <licenses>
         <license>
             <name>BSD 3-Clause License</name>
@@ -49,8 +48,8 @@
     </scm>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -73,8 +72,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
 
@@ -143,4 +142,13 @@
         </plugins>
         <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.11.3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

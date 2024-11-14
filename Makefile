@@ -34,5 +34,15 @@ docs:
 	mkdir -p target && cd docs && \
 	npm i && npm run build && cp -rv src/.vuepress/dist/ ../target
 
+tests:
+	python3 $(TOOLS_DIR)/prebuild.py $(REV) release
+	mvn -f ./.buildconfig-pom.xml test
+
+tests-nightly:
+	python3 $(TOOLS_DIR)/prebuild.py $(REV) devel
+	mvn -f ./.buildconfig-pom.xml test
+
+tests-all: tests tests-nightly
+
 default: clean build-nightly
 
