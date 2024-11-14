@@ -1,11 +1,10 @@
 package works.nuka.modularkit;
 
 import works.nuka.modularkit.events.ModuleStatus;
+import works.nuka.modularkit.ex.ModRegisterEx;
 import works.nuka.modularkit.ex.ModRunEx;
 import works.nuka.modularkit.ex.ModSourceEx;
 import works.nuka.modularkit.ex.ModUuidEx;
-
-import java.util.ArrayList;
 
 @SuppressWarnings("unused")
 
@@ -13,14 +12,12 @@ public abstract class ModularModule {
 
     private final String uuid; // The Module UuID, needed for find a unique module.
     private final String moduleName; // module name.
-    private final String author; // module vuthor name.
+    private final String author; // module author name.
     private final String version; // module version number.
-
-    // (WIP) Temp ModuleDeps ArrayList<ModularModule>.
-    private final ArrayList<ModularModule> tmpModDepsList = new ArrayList<>();
 
     private ModuleStatus modStatus = ModuleStatus.STOPPED; // Default module execution status.
     private ModularSource modSource;
+    private final ModularModule[] moduleDependencies;
 
     // Thread naming conventions : Mod_$name#$dynUuid_$uuid
     private String threadName;
@@ -47,6 +44,7 @@ public abstract class ModularModule {
     ) throws ModUuidEx {
         this.author = author;
         this.version = version;
+        this.moduleDependencies = modDeps;
 
         if (_uuid == null)
             throw new ModUuidEx("uuid cannot be null.");
@@ -61,27 +59,19 @@ public abstract class ModularModule {
 
         else
             moduleName = _name;
-
-        if (modDeps != null) {
-            for (ModularModule mod : modDeps)
-                if (!tmpModDepsList.contains(mod))
-                    tmpModDepsList.add(mod);
-        }
     }
 
     protected void setModuleSource(ModularSource source) throws ModSourceEx, ModUuidEx {
         if (source != null)
             modSource = source;
-
         else
             throw new ModSourceEx("ModSource cannot be null !");
 
         if (modSource.getModuleManager().findModuleByUuiD(uuid) != null)
             throw new ModUuidEx("Module already instantiated !");
 
-        if (!tmpModDepsList.isEmpty())
-            for (ModularModule mod : tmpModDepsList)
-                getModSource().getModuleManager().setDepends(mod);
+        if (this.moduleDependencies != null && this.moduleDependencies.length > 0)
+            getModSource().getModuleManager().setDepends(this, this.moduleDependencies);
     }
 
     protected void exec() {
@@ -90,6 +80,7 @@ public abstract class ModularModule {
         threadName = modThread.getName();
 
         start();
+        // set to STOPPED when exec done
         modStatus = ModuleStatus.STOPPED;
     }
 
