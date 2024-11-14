@@ -1,19 +1,15 @@
 package works.nuka.modularkit;
 
 import works.nuka.modularkit.events.ModuleStatus;
-import works.nuka.modularkit.ex.ModRegisterEx;
-import works.nuka.modularkit.ex.ModRunEx;
-import works.nuka.modularkit.ex.ModSourceEx;
-import works.nuka.modularkit.ex.ModUuidEx;
+import works.nuka.modularkit.ex.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 
 public class ModuleManager {
     private final ModularSource modSource;
-    private final ArrayList<ModularModule> modulesDependencies = new ArrayList<>();
+    private final Map<String, ArrayList<ModularModule>> modulesDependencies = new HashMap<>();
 
     /**
      * The ModuleManager - Manage your Modules !
@@ -39,13 +35,17 @@ public class ModuleManager {
      * @since 1.0
      */
 
-    public synchronized boolean runModule(ModularModule module) throws ModRegisterEx {
+    public synchronized boolean runModule(ModularModule module, Runnable onComplete) throws ModRegisterEx {
         HashMap<String, ModularModule> runMap = (HashMap<String, ModularModule>) modSource.getModuleMap();
         if (!runMap.isEmpty()) {
             if (runMap.containsKey(module.getUuid())) {
                 Thread runThread = getRunThread(module);
                 // Starting the module...
+                module.setModuleStatus(ModuleStatus.RUNNING); // Force RUNNING status
                 runThread.start();
+                if (onComplete != null) {
+                    onComplete.run();
+                }
                 return true;
             } else
                 throw new ModRegisterEx("the module is not registered !");
@@ -60,9 +60,9 @@ public class ModuleManager {
             } catch (Throwable e) {
                 e.printStackTrace();
             } finally {
-                module.setModuleStatus(ModuleStatus.STOPPING);
+                // Stop the module
                 try {
-                    this.stopModule(module, false);
+                    this.stopModule(module, false, null);
                     module.setModuleStatus(ModuleStatus.STOPPED);
                 } catch (ModRunEx e) {
                     throw new RuntimeException(e);
@@ -74,13 +74,14 @@ public class ModuleManager {
         return runThread;
     }
 
-    public void runModule(String uuid) throws ModRunEx {
+    public void runModule(String uuid, Runnable onComplete) throws ModRunEx {
         try {
             ModularModule mod = findModuleByUuiD(uuid);
             if (mod == null)
                 throw new ModRunEx("Module not found !");
 
-            runModule(mod);
+            runModule(mod, onComplete);
+
         } catch (ModUuidEx | ModRegisterEx e) {
             e.printStackTrace();
         }
@@ -95,20 +96,28 @@ public class ModuleManager {
      * @since 1.0
      */
 
-    public void stopModule(ModularModule module, @Deprecated boolean forceStop) throws ModRunEx {
-        module.setModuleStatus(ModuleStatus.STOPPING);
-        module.stop();
-        if (forceStop)
-            module.kill();
+    public void stopModule(ModularModule module, @Deprecated boolean forceStop, Runnable onComplete) throws ModRunEx {
+        if (module.getModuleStatus() == ModuleStatus.RUNNING) {
+            module.setModuleStatus(ModuleStatus.STOPPING);
+            module.stop();
+            if (forceStop)
+                module.kill();
+
+            module.setModuleStatus(ModuleStatus.STOPPED);
+        }
+
+        if (onComplete != null) {
+            onComplete.run();
+        }
     }
 
-    public void stopModule(String uuid, @Deprecated boolean forceStop) throws ModRunEx {
+    public void stopModule(String uuid, @Deprecated boolean forceStop, Runnable onComplete) throws ModRunEx {
         try {
             ModularModule mod = findModuleByUuiD(uuid);
             if (mod == null)
                 throw new ModRunEx("Module not found !");
 
-            stopModule(mod, forceStop);
+            stopModule(mod, forceStop, onComplete);
         } catch (ModUuidEx e) {
             e.printStackTrace();
         }
@@ -139,10 +148,17 @@ public class ModuleManager {
      * @since 1.3
      */
 
-    public void setDepends(ModularModule... modDeps) {
-        for (ModularModule mod : modDeps)
-            if (!modulesDependencies.contains(mod)) {
-                modulesDependencies.add(mod);
-            }
+    public void setDepends(ModularModule module, ModularModule... modDeps) throws ModSourceEx {
+        if (modulesDependencies.containsKey(module.getUuid())) {
+            throw new ModSourceEx("Cant update setDepends for... TODO");
+        } else {
+            modulesDependencies.put(module.getUuid(), new ArrayList<>(List.of(modDeps)));
+        }
+    }
+    
+    public ArrayList<ModularModule> getDepends(ModularModule module) throws ModSourceEx {
+        ArrayList<ModularModule> modules = modulesDependencies.get(module.getUuid());
+        if (modules != null) return modules;
+        else throw new ModSourceEx("Module not found");
     }
 }
