@@ -10,7 +10,8 @@
     <name>ModularKit</name>
     <url>https://modularkit.nuka.works</url>
     <description>
-        ModularKit, an alternative to the OSGi framework, more lightweight and powerful Java toolkit for creating modular apps.
+        ModularKit, an alternative to the OSGi framework, more lightweight and powerful Java toolkit for creating
+        modular apps.
     </description>
     <licenses>
         <license>
@@ -66,6 +67,8 @@
     </distributionManagement>
 
     <build>
+        <testSourceDirectory>src/tests</testSourceDirectory>
+
         <plugins>
             <plugin>
                 <version>3.8.1</version>
@@ -139,6 +142,11 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
         </plugins>
         <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
