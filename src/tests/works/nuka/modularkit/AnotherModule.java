@@ -16,4 +16,14 @@ public class AnotherModule extends ModularModule {
     public void start() {
         System.out.println("Hello " + this.getModuleName() + " !");
     }
+
+    @Override
+    protected void load() {
+
+    }
+
+    @Override
+    protected void unload() {
+
+    }
 }

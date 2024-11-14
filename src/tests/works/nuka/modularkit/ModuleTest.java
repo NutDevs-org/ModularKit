@@ -20,4 +20,14 @@ public class ModuleTest extends ModularModule {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    protected void load() {
+
+    }
+
+    @Override
+    protected void unload() {
+
+    }
 }

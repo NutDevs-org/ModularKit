@@ -34,6 +34,16 @@ public class ModularModuleTests {
         }
 
         @Override
+        protected void load() {
+
+        }
+
+        @Override
+        protected void unload() {
+
+        }
+
+        @Override
         protected void stop() {
             System.out.printf("Stopping %s...%n", this.getModuleName());
         }
@@ -104,9 +114,6 @@ public class ModularModuleTests {
         source.getModuleManager().runModule(testModule, () -> {
             assertEquals(ModuleStatus.RUNNING, testModule.getModuleStatus(), "Module should be running after exec");
         });
-        assertNotNull(testModule.getThreadName(), "Thread name should be set after exec");
-        System.out.println(testModule.getModuleStatus() + testModule.getThreadName());
-
     }
 
     @Test

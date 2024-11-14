@@ -54,22 +54,7 @@ public class ModuleManager {
     }
 
     private Thread getRunThread(ModularModule module) {
-        Thread runThread = new Thread(() -> {
-            try {
-                module.exec();
-            } catch (Throwable e) {
-                e.printStackTrace();
-            } finally {
-                // Stop the module
-                try {
-                    this.stopModule(module, false, null);
-                    module.setModuleStatus(ModuleStatus.STOPPED);
-                } catch (ModRunEx e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
+        Thread runThread = new Thread(module::exec);
         runThread.setName("Mod_" + module.getModuleName() + "_" + module.getUuid());
         return runThread;
     }
@@ -155,10 +140,10 @@ public class ModuleManager {
             modulesDependencies.put(module.getUuid(), new ArrayList<>(List.of(modDeps)));
         }
     }
-    
-    public ArrayList<ModularModule> getDepends(ModularModule module) throws ModSourceEx {
+
+    public List<ModularModule> getDepends(ModularModule module) throws ModSourceEx {
         ArrayList<ModularModule> modules = modulesDependencies.get(module.getUuid());
-        if (modules != null) return modules;
+        if (modules != null) return Collections.unmodifiableList(modules);
         else throw new ModSourceEx("Module not found");
     }
 }

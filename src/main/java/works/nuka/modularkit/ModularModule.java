@@ -1,7 +1,6 @@
 package works.nuka.modularkit;
 
 import works.nuka.modularkit.events.ModuleStatus;
-import works.nuka.modularkit.ex.ModRegisterEx;
 import works.nuka.modularkit.ex.ModRunEx;
 import works.nuka.modularkit.ex.ModSourceEx;
 import works.nuka.modularkit.ex.ModUuidEx;
@@ -80,8 +79,6 @@ public abstract class ModularModule {
         threadName = modThread.getName();
 
         start();
-        // set to STOPPED when exec done
-        modStatus = ModuleStatus.STOPPED;
     }
 
     /**
@@ -90,6 +87,10 @@ public abstract class ModularModule {
     protected abstract void stop();
 
     protected abstract void start();
+
+    protected abstract void load();
+
+    protected abstract void unload();
 
     @SuppressWarnings("deprecation") // Because modThread.stop() is deprecated.
     protected void kill() throws ModRunEx {
