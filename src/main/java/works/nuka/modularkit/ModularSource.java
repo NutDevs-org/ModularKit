@@ -44,11 +44,7 @@ public class ModularSource {
             throw new ModUuidEx("uuid cannot be null.");
 
         if (_uuid.length() != 8)
-            try {
-                throw new ModUuidEx("uuid is incorrect !");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            throw new ModUuidEx("uuid is incorrect !");
 
         uuid = _uuid;
         registerSource();
@@ -88,8 +84,7 @@ public class ModularSource {
         if (path.exists() && path.canRead()) {
             try {
                 Files.walk(path.toPath()).forEach(e -> {
-                    if (e.toFile().isFile() &&
-                            (!fileExtension.isEmpty() || e.toFile().getName().endsWith(fileExtension))) {
+                    if (e.toFile().isFile()) {
                         URLClassLoader classLoader = null;
 
                         try {
