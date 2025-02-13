@@ -2,29 +2,29 @@ name: Nightly Builder
 
 on:
   push:
-    branches: [ main ]
+    branches: [ stable ]
   pull_request:
-    branches: [ main ]
+    branches: [ stable ]
   workflow_dispatch:
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         name: Set up Python 3.9
-      
+
       - uses: actions/setup-python@v2
         with:
           python-version: 3.9
-          
+
       - name: Install dependencies
         run: sudo apt install git -y
-        
+
       - name: Launch Prebuild Script
         shell: bash
         run: python tools/prebuild.py $(git rev-parse --short HEAD) devel
-        
+
       - name: Prepare Build ModularKit
         uses: actions/setup-java@v2
         with:
